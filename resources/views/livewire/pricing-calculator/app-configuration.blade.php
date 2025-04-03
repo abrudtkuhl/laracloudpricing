@@ -6,33 +6,23 @@
     <div class="mb-6">
         <h3 class="text-lg font-medium text-black dark:text-white mb-4">Web App Compute Size</h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="relative">
-                <input type="radio" id="web-compute-size-0.5" name="web-compute-size" wire:model.live="webComputeSize" value="0.5" class="peer absolute h-0 w-0 opacity-0">
-                <label for="web-compute-size-0.5" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
-                    <span class="font-medium text-black dark:text-white">0.5 CPU / 512 MB</span>
-                    <span class="text-sm text-zinc-500 dark:text-zinc-400">Small apps or development</span>
-                    <span class="mt-2 text-sm font-semibold text-red-500">${{ $webComputePrices['0.5'] ?? 0 }}/mo per instance</span>
-                </label>
-            </div>
-            
-            <div class="relative">
-                <input type="radio" id="web-compute-size-1" name="web-compute-size" wire:model.live="webComputeSize" value="1" class="peer absolute h-0 w-0 opacity-0">
-                <label for="web-compute-size-1" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
-                    <span class="font-medium text-black dark:text-white">1 CPU / 1 GB</span>
-                    <span class="text-sm text-zinc-500 dark:text-zinc-400">Medium traffic apps</span>
-                    <span class="mt-2 text-sm font-semibold text-red-500">${{ $webComputePrices['1'] ?? 0 }}/mo per instance</span>
-                </label>
-            </div>
-            
-            <div class="relative">
-                <input type="radio" id="web-compute-size-2" name="web-compute-size" wire:model.live="webComputeSize" value="2" class="peer absolute h-0 w-0 opacity-0">
-                <label for="web-compute-size-2" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
-                    <span class="font-medium text-black dark:text-white">2 CPU / 2 GB</span>
-                    <span class="text-sm text-zinc-500 dark:text-zinc-400">High traffic apps</span>
-                    <span class="mt-2 text-sm font-semibold text-red-500">${{ $webComputePrices['2'] ?? 0 }}/mo per instance</span>
-                </label>
-            </div>
+        <div>
+            <label for="web-compute-size" class="sr-only">Web Compute Size</label>
+            <select id="web-compute-size" wire:model.live="webComputeSize" class="w-full rounded border border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-2 pl-3 pr-10 text-base focus:border-red-500 focus:outline-none focus:ring-red-500 sm:text-sm">
+                @php
+                    // Filter available sizes based on plan if necessary (e.g., Sandbox only Flex)
+                    $availableWebSizes = $this->getAvailableComputeSizes(); 
+                @endphp
+                @foreach($availableWebSizes as $key => $size)
+                     {{-- Add check to ensure size data is valid --}}
+                    @if(isset($size['label'], $size['price_monthly']))
+                        <option value="{{ $key }}">{{ $size['label'] }} - Est. ${{ $size['price_monthly'] }}/month per instance</option>
+                    @endif
+                @endforeach
+            </select>
+             <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                Select the compute resources for your web application instances.
+            </p>
         </div>
     </div>
     
@@ -96,33 +86,23 @@
             <div class="mb-6">
                 <h4 class="text-base font-medium text-black dark:text-white mb-4">Worker Compute Size</h4>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="relative">
-                        <input type="radio" id="worker-compute-size-0.5" name="worker-compute-size" wire:model.live="workerComputeSize" value="0.5" class="peer absolute h-0 w-0 opacity-0">
-                        <label for="worker-compute-size-0.5" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
-                            <span class="font-medium text-black dark:text-white">0.5 CPU / 512 MB</span>
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400">Light processing</span>
-                            <span class="mt-2 text-sm font-semibold text-red-500">${{ $workerComputePrices['0.5'] ?? 0 }}/mo per instance</span>
-                        </label>
-                    </div>
-                    
-                    <div class="relative">
-                        <input type="radio" id="worker-compute-size-1" name="worker-compute-size" wire:model.live="workerComputeSize" value="1" class="peer absolute h-0 w-0 opacity-0">
-                        <label for="worker-compute-size-1" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
-                            <span class="font-medium text-black dark:text-white">1 CPU / 1 GB</span>
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400">Medium processing</span>
-                            <span class="mt-2 text-sm font-semibold text-red-500">${{ $workerComputePrices['1'] ?? 0 }}/mo per instance</span>
-                        </label>
-                    </div>
-                    
-                    <div class="relative">
-                        <input type="radio" id="worker-compute-size-2" name="worker-compute-size" wire:model.live="workerComputeSize" value="2" class="peer absolute h-0 w-0 opacity-0">
-                        <label for="worker-compute-size-2" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
-                            <span class="font-medium text-black dark:text-white">2 CPU / 2 GB</span>
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400">Heavy processing</span>
-                            <span class="mt-2 text-sm font-semibold text-red-500">${{ $workerComputePrices['2'] ?? 0 }}/mo per instance</span>
-                        </label>
-                    </div>
+                <div>
+                    <label for="worker-compute-size" class="sr-only">Worker Compute Size</label>
+                    <select id="worker-compute-size" wire:model.live="workerComputeSize" class="w-full rounded border border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-2 pl-3 pr-10 text-base focus:border-red-500 focus:outline-none focus:ring-red-500 sm:text-sm">
+                         @php
+                            // Filter available sizes based on plan if necessary (e.g., Sandbox only Flex)
+                            $availableWorkerSizes = $this->getAvailableComputeSizes(); 
+                        @endphp
+                        @foreach($availableWorkerSizes as $key => $size)
+                            {{-- Add check to ensure size data is valid --}}
+                            @if(isset($size['label'], $size['price_monthly']))
+                                <option value="{{ $key }}">{{ $size['label'] }} - Est. ${{ $size['price_monthly'] }}/month per instance</option>
+                            @endif
+                        @endforeach
+                    </select>
+                     <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                        Select the compute resources for your background worker instances.
+                    </p>
                 </div>
             </div>
             

@@ -45,11 +45,11 @@
         
         <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
             @if($plan == 'sandbox')
-                Sandbox plan includes {{ $dataTransferFreeAllowance['sandbox'] }}GB data transfer for free. Additional data is ${{ $dataTransferPrice }}/GB.
+                Sandbox plan includes {{ $this->pricingService->getPlanAllowance('data_transfer', 'sandbox') }}GB data transfer for free. Additional data is ${{ number_format($this->pricingService->getDataTransferPricePerGb() ?? 0, 2) }}/GB.
             @elseif($plan == 'production')
-                Production plan includes {{ $dataTransferFreeAllowance['production'] }}GB data transfer for free. Additional data is ${{ $dataTransferPrice }}/GB.
+                Production plan includes {{ $this->pricingService->getPlanAllowance('data_transfer', 'production') }}GB data transfer for free. Additional data is ${{ number_format($this->pricingService->getDataTransferPricePerGb() ?? 0, 2) }}/GB.
             @elseif($plan == 'business')
-                Business plan includes {{ $dataTransferFreeAllowance['business'] }}GB data transfer for free. Additional data is ${{ $dataTransferPrice }}/GB.
+                Business plan includes {{ $this->pricingService->getPlanAllowance('data_transfer', 'business') }}GB data transfer for free. Additional data is ${{ number_format($this->pricingService->getDataTransferPricePerGb() ?? 0, 2) }}/GB.
             @endif
         </p>
     </div>
@@ -97,17 +97,17 @@
         
         <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
             @if($plan == 'sandbox')
-                Sandbox plan includes {{ $requestsFreeAllowance['sandbox'] }}M requests for free. Additional requests are ${{ $requestsPrice }} per million.
+                Sandbox plan includes {{ number_format($this->pricingService->getPlanAllowance('requests', 'sandbox')) }}M requests for free. Additional requests are ${{ number_format($this->pricingService->getRequestsPricePerMillion() ?? 0, 2) }} per million.
             @elseif($plan == 'production')
-                Production plan includes {{ $requestsFreeAllowance['production'] }}M requests for free. Additional requests are ${{ $requestsPrice }} per million.
+                Production plan includes {{ number_format($this->pricingService->getPlanAllowance('requests', 'production')) }}M requests for free. Additional requests are ${{ number_format($this->pricingService->getRequestsPricePerMillion() ?? 0, 2) }} per million.
             @elseif($plan == 'business')
-                Business plan includes {{ $requestsFreeAllowance['business'] }}M requests for free. Additional requests are ${{ $requestsPrice }} per million.
+                Business plan includes {{ number_format($this->pricingService->getPlanAllowance('requests', 'business')) }}M requests for free. Additional requests are ${{ number_format($this->pricingService->getRequestsPricePerMillion() ?? 0, 2) }} per million.
             @endif
         </p>
     </div>
     
     <!-- Custom Domains -->
-    <div>
+    <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
             <label for="custom-domains" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Custom Domains
@@ -152,10 +152,59 @@
             @if($plan == 'sandbox')
                 Sandbox plan does not include custom domains. Upgrade to Production or Business plan.
             @elseif($plan == 'production')
-                Production plan includes {{ $customDomainsFreeAllowance['production'] }} custom domains for free. Additional domains are ${{ $customDomainsPrice }} per month.
+                Production plan includes {{ $this->pricingService->getPlanAllowance('custom_domains', 'production') }} custom domains for free.
             @elseif($plan == 'business')
-                Business plan includes {{ $customDomainsFreeAllowance['business'] }} custom domains for free. Additional domains are ${{ $customDomainsPrice }} per month.
+                Business plan includes {{ $this->pricingService->getPlanAllowance('custom_domains', 'business') }} custom domains for free.
             @endif
         </p>
     </div>
+
+    <!-- Additional Users -->
+    <div>
+        <div class="flex justify-between items-center mb-2">
+            <label for="additional-users" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Additional Users (beyond free allowance)
+            </label>
+            <div class="flex space-x-2 items-center">
+                <button type="button" wire:click="$set('additionalUsers', {{ max(0, $additionalUsers - 1) }})" class="inline-flex items-center justify-center w-8 h-8 border border-zinc-300 dark:border-neutral-700 rounded bg-white dark:bg-neutral-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-neutral-700" {{ $plan == 'sandbox' ? 'disabled' : '' }}>
+                    <span class="sr-only">Decrease</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <span class="w-10 text-center font-bold text-black dark:text-white">{{ $additionalUsers }}</span>
+                <button type="button" wire:click="$set('additionalUsers', {{ $additionalUsers + 1 }})" class="inline-flex items-center justify-center w-8 h-8 border border-zinc-300 dark:border-neutral-700 rounded bg-white dark:bg-neutral-800 text-black dark:text-white hover:bg-zinc-50 dark:hover:bg-neutral-700" {{ $plan == 'sandbox' ? 'disabled' : '' }}>
+                    <span class="sr-only">Increase</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        {{-- Simple number input is likely better than a range here --}}
+        <div class="mb-2">
+             <input 
+                id="additional-users"
+                type="number" 
+                wire:model.live="additionalUsers" 
+                min="0" 
+                step="1"
+                class="w-full rounded border border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-2 focus:border-red-500 focus:outline-none focus:ring-red-500 sm:text-sm"
+                placeholder="0"
+                 {{ $plan == 'sandbox' ? 'disabled' : '' }}
+            >
+        </div>
+
+        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            @if($plan == 'sandbox')
+                Additional users cannot be added to the Sandbox plan (includes {{ $this->pricingService->getPlanAllowance('users', 'sandbox') }} free users).
+            @elseif($plan == 'production')
+                Production plan includes {{ $this->pricingService->getPlanAllowance('users', 'production') }} free users. Additional users are ${{ number_format($this->pricingService->getAdditionalUserPrice() ?? 0, 2) }} per user/month.
+            @elseif($plan == 'business')
+                Business plan includes {{ $this->pricingService->getPlanAllowance('users', 'business') }} free users. Additional users are ${{ number_format($this->pricingService->getAdditionalUserPrice() ?? 0, 2) }} per user/month.
+            @endif
+        </p>
+    </div>
+
 </div> 
