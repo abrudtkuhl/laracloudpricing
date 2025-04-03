@@ -22,7 +22,7 @@ it('calculates bandwidth cost for fullstack application scenario', function () {
 
     $actualCost = $this->pricingService->calculateDataTransferCost($this->plan, $totalDataTransferredGB);
 
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    expect($actualCost)->toBe($expectedCost);
 });
 
 it('calculates requests cost for fullstack application scenario', function() {
@@ -36,7 +36,7 @@ it('calculates requests cost for fullstack application scenario', function() {
 
     $actualCost = $this->pricingService->calculateRequestsCost($this->plan, $totalRequestsMillions);
 
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    expect($actualCost)->toBe($expectedCost);
 });
 
 it('calculates bandwidth cost for backend application scenario', function () {
@@ -54,7 +54,7 @@ it('calculates bandwidth cost for backend application scenario', function () {
 
     $actualCost = $this->pricingService->calculateDataTransferCost($this->plan, $totalDataTransferredGB);
 
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    expect($actualCost)->toBe($expectedCost);
 });
 
 it('calculates requests cost for backend application scenario', function() {
@@ -68,7 +68,53 @@ it('calculates requests cost for backend application scenario', function() {
 
     $actualCost = $this->pricingService->calculateRequestsCost($this->plan, $totalRequestsMillions);
 
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    expect($actualCost)->toBe($expectedCost);
 });
 
-// Add tests for other plans (sandbox, business) and edge cases 
+// --- Add tests for other plans and edge cases ---
+
+it('calculates zero data transfer cost when below allowance', function (string $plan, int $allowance) {
+    $totalDataTransferredGB = $allowance - 5; // Ensure below allowance
+    $expectedCost = 0.00;
+    $actualCost = $this->pricingService->calculateDataTransferCost($plan, $totalDataTransferredGB);
+    expect($actualCost)->toBe($expectedCost);
+})->with([
+    ['sandbox', 10],
+    ['production', 100],
+    ['business', 1000],
+]);
+
+it('calculates data transfer cost correctly for sandbox above allowance', function(){
+    $plan = 'sandbox';
+    $allowance = 10;
+    $totalDataTransferredGB = 50;
+    $chargeableGB = $totalDataTransferredGB - $allowance; // 40 GB
+    $pricePerGB = 0.10;
+    $expectedCost = $chargeableGB * $pricePerGB; // 4.00
+
+    $actualCost = $this->pricingService->calculateDataTransferCost($plan, $totalDataTransferredGB);
+    expect($actualCost)->toBe($expectedCost);
+});
+
+it('calculates zero requests cost when below allowance', function (string $plan, int $allowance) {
+    $totalRequestsMillions = $allowance - 1; // Ensure below allowance (allowance >= 1)
+    $expectedCost = 0.00;
+    $actualCost = $this->pricingService->calculateRequestsCost($plan, $totalRequestsMillions);
+    expect($actualCost)->toBe($expectedCost);
+})->with([
+    ['sandbox', 1],
+    ['production', 10],
+    ['business', 100],
+]);
+
+it('calculates requests cost correctly for business above allowance', function(){
+    $plan = 'business';
+    $allowance = 100;
+    $totalRequestsMillions = 150;
+    $chargeableMillions = $totalRequestsMillions - $allowance; // 50 M
+    $pricePerMillion = 1.00;
+    $expectedCost = $chargeableMillions * $pricePerMillion; // 50.00
+
+    $actualCost = $this->pricingService->calculateRequestsCost($plan, $totalRequestsMillions);
+    expect($actualCost)->toBe($expectedCost);
+}); 

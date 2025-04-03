@@ -18,8 +18,8 @@ it('calculates compute cost for hibernation scenario', function () {
 
     $actualCost = $this->pricingService->calculateHourlyComputeCost($instanceSizeKey, $totalActiveHours);
 
-    // Use rounding assertion due to potential float inaccuracies
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    // Use direct equality check as service rounds the result
+    expect($actualCost)->toBe($expectedCost);
 });
 
 it('calculates compute cost for autoscaling scenario', function () {
@@ -39,8 +39,8 @@ it('calculates compute cost for autoscaling scenario', function () {
 
     $actualCost = $this->pricingService->calculateAutoscalingComputeCost($instanceSizeKey, $hoursAtScale);
 
-    // Use rounding assertion
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    // Use direct equality check
+    expect($actualCost)->toBe($expectedCost);
 
     // Optional: Verify total compute hours calculation if needed separately
     // $calculatedTotalHours = 0;
@@ -59,5 +59,5 @@ it('calculates monthly compute cost correctly', function() {
     $expectedCost = 20.29 * 3; // 60.87
 
     $actualCost = $this->pricingService->calculateMonthlyComputeCost($sizeKey, $instances);
-    expect($actualCost)->toBeApproximately($expectedCost, 0.01);
+    expect($actualCost)->toBe($expectedCost);
 }); 
