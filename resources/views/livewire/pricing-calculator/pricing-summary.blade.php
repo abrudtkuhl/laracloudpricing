@@ -107,8 +107,23 @@
         </div>
         
         <div class="mt-12">
-            <a href="https://laravel.cloud" class="w-full block text-center py-5 px-6 bg-red-500 hover:bg-red-600 text-white text-lg font-semibold transition-colors rounded-xl shadow-lg hover:shadow-xl">
-                Get Started on Laravel Cloud
+            @if($plan === 'business')
+                <div class="text-center text-sm text-zinc-600 dark:text-zinc-400 mb-2">Coming soon</div>
+            @endif
+            
+            <a 
+                href="{{ $plan === 'business' ? '#' : 'https://app.laravel.cloud/register?plan=' . $plan }}"
+                @class([
+                    'w-full block text-center py-5 px-6 text-white text-lg font-semibold transition-colors rounded-xl shadow-lg hover:shadow-xl',
+                    'bg-red-500 hover:bg-red-600' => $plan !== 'business',
+                    'bg-zinc-400 cursor-not-allowed' => $plan === 'business'
+                ])
+            >
+                @if($plan === 'business')
+                    Coming Soon
+                @else
+                    Get Started on Laravel Cloud
+                @endif
             </a>
         </div>
     </div>

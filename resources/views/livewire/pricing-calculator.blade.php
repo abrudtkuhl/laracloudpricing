@@ -2,9 +2,10 @@
     <!-- Floating Summary -->
     <div 
         class="fixed top-4 right-4 z-50 w-80 bg-white dark:bg-neutral-800 rounded-lg shadow-xl border border-zinc-200 dark:border-neutral-700 overflow-hidden"
-        x-data="{ show: true }"
+        x-data="{ show: false }"
         x-show="show"
         x-transition
+        x-init="window.addEventListener('scroll', () => { show = window.scrollY > 100 })"
     >
         <div class="flex justify-between items-center p-3 bg-red-500 text-white">
             <h3 class="text-sm font-semibold">Monthly Estimate</h3>

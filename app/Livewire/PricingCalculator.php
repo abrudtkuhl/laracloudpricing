@@ -34,8 +34,8 @@ class PricingCalculator extends Component
     // Base prices
     public $planPrices = [
         'sandbox' => 0,
-        'production' => 29,
-        'business' => 99,
+        'production' => 20,
+        'business' => 200,
     ];
     
     // Compute prices
@@ -73,46 +73,29 @@ class PricingCalculator extends Component
         10 => 50,
     ];
     
-    // Object storage prices (per GB)
+    // Object storage prices
     public $objectStoragePrices = [
-        5 => 1,
-        10 => 2,
-        15 => 3,
-        20 => 4,
-        25 => 5,
-        30 => 6,
-        35 => 7,
-        40 => 8,
-        45 => 9,
-        50 => 10,
-        55 => 11,
-        60 => 12,
-        65 => 13,
-        70 => 14,
-        75 => 15,
-        80 => 16,
-        85 => 17,
-        90 => 18,
-        95 => 19,
-        100 => 20,
+        'storage' => 0.02,
+        'classA' => 0.005,
+        'classB' => 0.0005,
     ];
     
     // Usage pricing
     public $dataTransferFreeAllowance = [
-        'sandbox' => 500,
-        'production' => 1000,
-        'business' => 2000,
+        'sandbox' => 10,
+        'production' => 100,
+        'business' => 1000,
     ];
     
-    public $dataTransferPrice = 0.09;
+    public $dataTransferPrice = 0.10;
     
     public $requestsFreeAllowance = [
         'sandbox' => 1,
-        'production' => 5,
-        'business' => 25,
+        'production' => 10,
+        'business' => 100,
     ];
     
-    public $requestsPrice = 0.10;
+    public $requestsPrice = 1.00;
     
     public $customDomainsFreeAllowance = [
         'sandbox' => 0,
@@ -120,7 +103,10 @@ class PricingCalculator extends Component
         'business' => 10,
     ];
     
-    public $customDomainsPrice = 7;
+    public $customDomainsPrice = 0.50;
+    
+    public $databaseStoragePrice = 1.50;
+    public $databaseAdditionalUserPrice = 10.00;
     
     public function mount()
     {
@@ -273,7 +259,7 @@ class PricingCalculator extends Component
             return 0;
         }
         
-        return $this->objectStoragePrices[$this->objectStorage];
+        return $this->objectStoragePrices['storage'] * $this->objectStorage;
     }
     
     #[Computed]
