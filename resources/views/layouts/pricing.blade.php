@@ -27,13 +27,14 @@
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="mb-4 md:mb-0">
                         <p class="text-zinc-500 dark:text-zinc-400">
-                            Not affiliate with Laravel. Built by <a href="https://x.com/abrudtkuhl" target="_blank" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors">abrudtkuhl</a>
+                            Not affiliate with Laravel. Built by <a href="https://github.com/abrudtkuhl/laracloudpricing" target="_blank" class="text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors">@abrudtkuhl</a>
                         </p>
                     </div>
                     
                 </div>
             </div>
         </footer>
+        
     </div>
     
     @livewireScripts

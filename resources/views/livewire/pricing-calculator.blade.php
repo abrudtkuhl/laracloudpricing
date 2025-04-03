@@ -79,7 +79,9 @@
             </div>
             
             <div class="mt-3">
-                <a href="https://laravel.cloud" class="block w-full py-2 px-3 text-center text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded">
+                <a 
+                    href="{{ $plan === 'business' ? '#' : 'https://app.laravel.cloud/register?plan=' . $plan }}" 
+                    class="block w-full py-2 px-3 text-center text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded {{ $plan === 'business' ? 'opacity-50 cursor-not-allowed' : '' }}">
                     Get Started
                 </a>
             </div>

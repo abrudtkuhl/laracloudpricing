@@ -10,14 +10,21 @@
                     <h3 class="text-lg font-semibold text-black dark:text-white">{{ ucfirst($plan) }} Plan</h3>
                     <p class="text-sm text-zinc-600 dark:text-zinc-400">Base subscription</p>
                 </div>
-                <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->basePlanCost(), 2) }}</span>
+                <span class="text-lg font-semibold text-black dark:text-white">
+                    ${{ number_format($this->basePlanCost(), 2) }}
+                    @if($plan !== 'sandbox') 
+                        <span class="text-sm font-normal text-zinc-500 dark:text-zinc-400">+ usage</span>
+                    @endif
+                </span>
             </div>
             
             <!-- Web Compute Cost -->
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Web Compute</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $webComputeSize }} CPU × {{ $webInstances }} instances</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $this->pricingService->getComputeLabel($webComputeSize) }} × {{ $webInstances }} instance(s)
+                    </p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->webComputeCost(), 2) }}</span>
             </div>
@@ -27,7 +34,9 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Workers</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $workerComputeSize }} CPU × {{ $workerInstances }} instances</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $this->pricingService->getComputeLabel($workerComputeSize) }} × {{ $workerInstances }} instance(s)
+                    </p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->workerComputeCost(), 2) }}</span>
             </div>
@@ -38,7 +47,14 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">{{ ucfirst($databaseType) }} Database</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $databaseSize }} GB</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        @if($databaseType === 'mysql')
+                            {{ $this->pricingService->getMySqlLabel($mysqlDatabaseSize) ?? 'Selected Size' }} 
+                        @elseif($databaseType === 'postgres')
+                            {{ $postgresComputeUnits }} vCPU Compute 
+                        @endif
+                        + {{ $databaseStorageGB }} GB Storage
+                    </p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->databaseCost(), 2) }}</span>
             </div>
@@ -49,7 +65,9 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Laravel KV</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $kvStorage }} GB</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $this->pricingService->getKvLabel($kvTier) }} Tier
+                    </p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->kvCost(), 2) }}</span>
             </div>
@@ -60,7 +78,9 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Object Storage</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $objectStorage }} GB</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $objectStorageGB }} GB Storage + {{ $objectStorageClassAOpsThousands }}k Class A Ops + {{ $objectStorageClassBOpsThousands }}k Class B Ops
+                    </p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->objectStorageCost(), 2) }}</span>
             </div>
@@ -71,7 +91,7 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Data Transfer</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $dataTransfer }} GB ({{ $dataTransferFreeAllowance[$plan] }} GB included)</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $dataTransfer }} GB ({{ $this->pricingService->getPlanAllowance('data_transfer', $plan) }} GB included)</p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->dataTransferCost(), 2) }}</span>
             </div>
@@ -82,7 +102,7 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Requests</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $requests }}M ({{ $requestsFreeAllowance[$plan] }}M included)</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $requests }}M ({{ number_format($this->pricingService->getPlanAllowance('requests', $plan)) }}M included)</p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->requestsCost(), 2) }}</span>
             </div>
@@ -93,9 +113,22 @@
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Custom Domains</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $customDomains }} domains ({{ $customDomainsFreeAllowance[$plan] }} included)</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $customDomains }} domains ({{ $this->pricingService->getPlanAllowance('custom_domains', $plan) }} included)</p>
                 </div>
                 <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->customDomainsCost(), 2) }}</span>
+            </div>
+            @endif
+            
+            <!-- Users Cost -->
+            @if($this->usersCost() > 0)
+            <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
+                <div>
+                    <h3 class="text-lg font-semibold text-black dark:text-white">Additional Users</h3>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $additionalUsers }} user(s) beyond plan allowance
+                    </p>
+                </div>
+                <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->usersCost(), 2) }}</span>
             </div>
             @endif
             
