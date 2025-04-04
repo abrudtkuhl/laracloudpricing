@@ -4,15 +4,18 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 
 class PricingService
 {
     protected $config;
     protected $region = 'us-ohio'; // Default region
+    protected $apiKey;
 
     public function __construct()
     {
         $this->config = Config::get('laracloud');
+        $this->apiKey = env('OPENAI_API_KEY');
         // TODO: Allow region selection if needed in the future
     }
 
@@ -265,4 +268,163 @@ class PricingService
        return Arr::get($this->config, "kv.{$tierKey}.label", $tierKey); // Fallback to key
     }
     // --- End Added Methods ---
+    
+    // --- AI Configuration Methods ---
+    
+    public function generatePricingConfiguration(string $userDescription)
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->post('https://api.openai.com/v1/chat/completions', [
+            'model' => 'gpt-4-turbo',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You are a pricing configuration assistant for Laravel Cloud. You help users determine the best package based on their needs.'
+                ],
+                [
+                    'role' => 'user',
+                    'content' => "Based on the following Laravel Cloud pricing configuration data:\n" . 
+                        json_encode($this->config, JSON_PRETTY_PRINT) . 
+                        "\n\nCreate a configuration recommending the best plan and resources for the following user requirement:\n" .
+                        $userDescription
+                ]
+            ],
+            'functions' => [
+                [
+                    'name' => 'generate_pricing_configuration',
+                    'description' => 'Generate the optimal pricing configuration for Laravel Cloud based on user requirements',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'plan' => [
+                                'type' => 'string',
+                                'enum' => ['sandbox', 'production', 'business'],
+                                'description' => 'The recommended plan based on user needs'
+                            ],
+                            'compute' => [
+                                'type' => 'string',
+                                'description' => 'The recommended compute option key from the configuration'
+                            ],
+                            'database' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'type' => [
+                                        'type' => 'string',
+                                        'enum' => ['mysql', 'postgres', 'none'],
+                                        'description' => 'Database type'
+                                    ],
+                                    'size' => [
+                                        'type' => 'string',
+                                        'description' => 'Database size key from configuration'
+                                    ]
+                                ]
+                            ],
+                            'kv' => [
+                                'type' => 'string',
+                                'description' => 'Recommended KV storage option key'
+                            ],
+                            'explanation' => [
+                                'type' => 'string',
+                                'description' => 'Brief explanation of why this configuration was chosen'
+                            ]
+                        ],
+                        'required' => ['plan']
+                    ]
+                ]
+            ],
+            'function_call' => ['name' => 'generate_pricing_configuration'],
+            'temperature' => 0.5,
+        ]);
+        
+        $data = $response->json();
+        
+        if (!$response->successful()) {
+            return ['error' => 'Failed to get response from AI', 'details' => $data];
+        }
+        
+        $functionCall = $data['choices'][0]['message']['function_call'] ?? null;
+        
+        if (!$functionCall) {
+            return ['error' => 'No function call in response'];
+        }
+        
+        $configuration = json_decode($functionCall['arguments'], true);
+        return $this->buildAiConfigurationResponse($configuration);
+    }
+    
+    protected function buildAiConfigurationResponse(array $configuration)
+    {
+        $totalPrice = 0;
+        $details = [];
+        
+        // Calculate plan price
+        $planPrice = $this->calculateBasePlanCost($configuration['plan']);
+        $totalPrice += $planPrice;
+        $details['plan'] = [
+            'name' => $configuration['plan'],
+            'label' => Arr::get($this->config, "plans.{$configuration['plan']}.label", ucfirst($configuration['plan'])),
+            'price' => $planPrice
+        ];
+        
+        // Calculate compute price
+        if (isset($configuration['compute'])) {
+            $computePrice = $this->calculateMonthlyComputeCost($configuration['compute'], 1);
+            $totalPrice += $computePrice;
+            $details['compute'] = [
+                'type' => $configuration['compute'],
+                'label' => $this->getComputeLabel($configuration['compute']),
+                'price' => $computePrice
+            ];
+        }
+        
+        // Calculate database price if needed
+        if (isset($configuration['database']['type']) && $configuration['database']['type'] !== 'none') {
+            $dbType = $configuration['database']['type'];
+            $dbSize = $configuration['database']['size'] ?? null;
+            
+            if ($dbType === 'mysql' && $dbSize) {
+                $storageGB = 10; // Default value
+                $dbPrice = $this->calculateDatabaseCost($dbType, $dbSize, null, $storageGB);
+                $totalPrice += $dbPrice;
+                $details['database'] = [
+                    'type' => $dbType,
+                    'size' => $dbSize,
+                    'label' => $this->getMySqlLabel($dbSize),
+                    'storage_gb' => $storageGB,
+                    'price' => $dbPrice
+                ];
+            } elseif ($dbType === 'postgres') {
+                $cpuUnits = 1; // Default value
+                $storageGB = 10; // Default value
+                $dbPrice = $this->calculateDatabaseCost($dbType, null, $cpuUnits, $storageGB);
+                $totalPrice += $dbPrice;
+                $details['database'] = [
+                    'type' => $dbType,
+                    'cpu_units' => $cpuUnits,
+                    'storage_gb' => $storageGB,
+                    'price' => $dbPrice
+                ];
+            }
+        }
+        
+        // Calculate KV store price if needed
+        if (isset($configuration['kv'])) {
+            $kvPrice = $this->calculateKvCost($configuration['kv']);
+            $totalPrice += $kvPrice;
+            $details['kv'] = [
+                'size' => $configuration['kv'],
+                'label' => $this->getKvLabel($configuration['kv']),
+                'price' => $kvPrice
+            ];
+        }
+        
+        return [
+            'configuration' => $configuration,
+            'details' => $details,
+            'total_monthly_price' => $totalPrice,
+            'explanation' => $configuration['explanation'] ?? ''
+        ];
+    }
 } 

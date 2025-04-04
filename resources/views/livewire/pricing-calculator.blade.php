@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto dark:bg-neutral-900 rounded-lg overflow-hidden">
+<div class="max-w-7xl mx-auto dark:bg-neutral-900 rounded-lg overflow-hidden  bg-zinc-50">
     <!-- Floating Summary -->
     <div 
         class="fixed top-4 right-4 z-50 w-80 bg-white dark:bg-neutral-800 rounded-lg shadow-xl border border-zinc-200 dark:border-neutral-700 overflow-hidden"

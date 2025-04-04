@@ -8,6 +8,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Computed;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Attributes\On;
 
 class PricingCalculator extends Component
 {
@@ -399,4 +400,49 @@ class PricingCalculator extends Component
         return $this->pricingService->getAvailablePlans();
     }
     // --- End Added Computed Property ---
+
+    public function handleAiConfiguration($configuration)
+    {
+        // Set plan
+        if (isset($configuration['plan'])) {
+            $this->plan = $configuration['plan'];
+        }
+        
+        // Set compute
+        if (isset($configuration['compute'])) {
+            $this->webComputeSize = $configuration['compute'];
+        }
+        
+        // Set database
+        if (isset($configuration['database']['type'])) {
+            $this->databaseType = $configuration['database']['type'];
+            
+            if ($this->databaseType === 'mysql' && isset($configuration['database']['size'])) {
+                $this->mysqlDatabaseSize = $configuration['database']['size'];
+            } elseif ($this->databaseType === 'postgres') {
+                // Set default postgres values since they're not specified in the AI response
+                $this->postgresComputeUnits = $this->pricingService->getPostgresMinCpu();
+            }
+        }
+        
+        // Set KV store
+        if (isset($configuration['kv'])) {
+            $this->includeKv = true;
+            $this->kvTier = $configuration['kv'];
+        } else {
+            $this->includeKv = false;
+        }
+        
+        // Reset usage to plan defaults based on the new plan
+        $this->resetUsageToPlanDefaults();
+        
+        // Validate inputs for the new plan
+        $this->validateInputsForPlan();
+    }
+
+    #[On('applyAiConfiguration')]
+    public function applyAiConfiguration($configuration)
+    {
+        $this->handleAiConfiguration($configuration);
+    }
 } 
