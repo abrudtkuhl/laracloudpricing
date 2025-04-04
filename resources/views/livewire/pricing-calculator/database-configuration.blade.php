@@ -16,7 +16,7 @@
             </div>
             
             <div class="relative">
-                <input type="radio" id="database-type-postgresql" name="database-type" wire:model.live="databaseType" value="postgresql" class="peer absolute h-0 w-0 opacity-0">
+                <input type="radio" id="database-type-postgresql" name="database-type" wire:model.live="databaseType" value="postgres" class="peer absolute h-0 w-0 opacity-0">
                 <label for="database-type-postgresql" class="flex flex-col p-4 border rounded cursor-pointer border-zinc-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 hover:border-red-300 dark:hover:border-red-800 transition-colors">
                     <span class="font-medium text-black dark:text-white">PostgreSQL</span>
                     <span class="text-sm text-zinc-500 dark:text-zinc-400">Advanced SQL database</span>

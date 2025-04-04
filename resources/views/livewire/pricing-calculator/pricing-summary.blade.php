@@ -1,7 +1,7 @@
 <!-- Pricing Summary -->
 <div class="max-w-7xl mx-auto my-16">
     <div class="bg-zinc-50 dark:bg-neutral-800 p-8 rounded-xl shadow-xl border border-zinc-200 dark:border-neutral-700">
-        <h2 class="text-3xl font-bold text-black dark:text-white mb-8">Monthly Cost</h2>
+        <h2 class="text-3xl font-bold text-black dark:text-white mb-8">Estimated Monthly Cost</h2>
         
         <div class="space-y-6">
             <!-- Base Plan Cost -->
@@ -108,14 +108,16 @@
             </div>
             @endif
             
-            <!-- Custom Domains Cost -->
-            @if($this->customDomainsCost() > 0)
+            <!-- Custom Domains - only shown for plans that include them -->
+            @if($plan != 'sandbox')
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Custom Domains</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $customDomains }} domains ({{ $this->pricingService->getPlanAllowance('custom_domains', $plan) }} included)</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $this->pricingService->getPlanAllowance('custom_domains', $plan) }} domains included with {{ ucfirst($plan) }} plan
+                    </p>
                 </div>
-                <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->customDomainsCost(), 2) }}</span>
+                <span class="text-lg font-semibold text-black dark:text-white">Included</span>
             </div>
             @endif
             
@@ -133,8 +135,7 @@
             @endif
             
             <!-- Total Monthly Cost -->
-            <div class="flex justify-between items-center mt-8 pt-8 border-t-2 border-zinc-200 dark:border-neutral-700">
-                <h3 class="text-2xl font-bold text-black dark:text-white">Total Monthly Cost</h3>
+            <div class="flex justify-end items-center mt-8 pt-8 border-t-2 border-zinc-200 dark:border-neutral-700">
                 <span class="text-3xl font-bold text-red-500">${{ number_format($this->totalMonthlyCost(), 2) }}</span>
             </div>
         </div>
