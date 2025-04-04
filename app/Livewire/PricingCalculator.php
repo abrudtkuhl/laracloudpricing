@@ -399,7 +399,7 @@ class PricingCalculator extends Component
         }
         
         // Set database
-        if (isset($configuration['database']['type'])) {
+        if (isset($configuration['database']) && isset($configuration['database']['type'])) {
             $this->databaseType = $configuration['database']['type'];
             
             if ($this->databaseType === 'mysql' && isset($configuration['database']['size'])) {
@@ -408,6 +408,9 @@ class PricingCalculator extends Component
                 // Set default postgres values since they're not specified in the AI response
                 $this->postgresComputeUnits = $this->pricingService->getPostgresMinCpu();
             }
+        } else {
+            // Default to no database if not specified in the configuration
+            $this->databaseType = 'none';
         }
         
         // Set KV store

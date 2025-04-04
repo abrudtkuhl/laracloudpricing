@@ -135,8 +135,7 @@
             @endif
             
             <!-- Total Monthly Cost -->
-            <div class="flex justify-between items-center mt-8 pt-8 border-t-2 border-zinc-200 dark:border-neutral-700">
-                <h3 class="text-2xl font-bold text-black dark:text-white">Total Monthly Cost</h3>
+            <div class="flex justify-end items-center mt-8 pt-8 border-t-2 border-zinc-200 dark:border-neutral-700">
                 <span class="text-3xl font-bold text-red-500">${{ number_format($this->totalMonthlyCost(), 2) }}</span>
             </div>
         </div>
