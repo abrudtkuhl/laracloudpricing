@@ -27,7 +27,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="mb-4 md:mb-0">
                         <p class="text-zinc-500 dark:text-zinc-400 text-xs">
-                            Not affiliate with Laravel. 
+                            Not affiliated with Laravel. 
                             Pricing data is sourced from <a href="https://cloud.laravel.com/docs/pricing" target="_blank" class="text-zinc-900 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors">Laravel Cloud Docs</a> and isn't guaranteed to be 100% accurate.
                         </p>
                         <p class="text-zinc-500 dark:text-zinc-400">

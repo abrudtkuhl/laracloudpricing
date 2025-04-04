@@ -1,7 +1,7 @@
 <!-- Pricing Summary -->
 <div class="max-w-7xl mx-auto my-16">
     <div class="bg-zinc-50 dark:bg-neutral-800 p-8 rounded-xl shadow-xl border border-zinc-200 dark:border-neutral-700">
-        <h2 class="text-3xl font-bold text-black dark:text-white mb-8">Monthly Cost</h2>
+        <h2 class="text-3xl font-bold text-black dark:text-white mb-8">Estimated Monthly Cost</h2>
         
         <div class="space-y-6">
             <!-- Base Plan Cost -->
