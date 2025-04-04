@@ -140,7 +140,10 @@ class PricingCalculator extends Component
         // Use service to get allowances
         $this->dataTransfer = $this->pricingService->getPlanAllowance('data_transfer', $this->plan);
         $this->requests = $this->pricingService->getPlanAllowance('requests', $this->plan);
+        
+        // For custom domains, always use the plan allowance
         $this->customDomains = $this->pricingService->getPlanAllowance('custom_domains', $this->plan);
+        
         $this->additionalUsers = 0; // Reset additional users
 
         // Sandbox limitations
@@ -153,12 +156,12 @@ class PricingCalculator extends Component
             $defaultWorkerCompute = $this->pricingService->getComputeDefaultSizeKey() ?? 'flex-1c-512m'; // Fallback
 
             // Force Flex compute if Sandbox (assuming Pro/Dedicated not allowed)
-             if (!$this->webComputeSize || str_starts_with($this->webComputeSize, 'pro-')) {
-                 $this->webComputeSize = $defaultCompute;
-             }
-             if ($this->includeWorkers && (!$this->workerComputeSize || str_starts_with($this->workerComputeSize, 'pro-'))) {
-                 $this->workerComputeSize = $defaultWorkerCompute;
-             }
+            if (!$this->webComputeSize || str_starts_with($this->webComputeSize, 'pro-')) {
+                $this->webComputeSize = $defaultCompute;
+            }
+            if ($this->includeWorkers && (!$this->workerComputeSize || str_starts_with($this->workerComputeSize, 'pro-'))) {
+                $this->workerComputeSize = $defaultWorkerCompute;
+            }
         }
     }
 
@@ -352,24 +355,6 @@ class PricingCalculator extends Component
     {
          // Example: Decrement by 1 Million, min 0
         $this->requests = max(0, $this->requests - 1);
-    }
-
-    public function incrementCustomDomains()
-    {
-        // Only allow changes if not Sandbox
-        if ($this->plan !== 'sandbox') {
-            // Example: Increment by 1, max 50
-            $this->customDomains = min(50, $this->customDomains + 1);
-        }
-    }
-
-    public function decrementCustomDomains()
-    {
-         // Only allow changes if not Sandbox
-         if ($this->plan !== 'sandbox') {
-             // Example: Decrement by 1, min 0
-            $this->customDomains = max(0, $this->customDomains - 1);
-        }
     }
 
      public function incrementAdditionalUsers()

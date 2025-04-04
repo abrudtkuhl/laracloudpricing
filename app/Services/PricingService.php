@@ -140,8 +140,15 @@ class PricingService
 
     public function calculateCustomDomainsCost(string $plan, int $count): float
     {
-        // Document does not specify a cost for additional domains
-        // Allowance check could happen here or in the caller if needed.
+        // Custom domains are included in plan allowances and not separately charged
+        // This is a validation check only - no additional cost
+        $allowanceConfig = Arr::get($this->config, 'usage_allowances.custom_domains');
+        if (!$allowanceConfig) return 0;
+        
+        $planAllowance = $allowanceConfig[$plan] ?? 0;
+        
+        // If trying to use more domains than plan allows, this is a validation concern
+        // But there's no additional cost per domain
         return 0;
     }
 
@@ -281,7 +288,7 @@ class PricingService
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'You are a pricing configuration assistant for Laravel Cloud. You help users determine the best package based on their needs.'
+                    'content' => 'You are a pricing configuration assistant for Laravel Cloud. You help users determine the best package based on their needs. Make sure to consider plan-specific limitations, such as: Sandbox plan only supports Flex compute; custom domains are included in plan allowances (0 for Sandbox, 3 for Production, 10 for Business) and cannot be purchased separately.'
                 ],
                 [
                     'role' => 'user',

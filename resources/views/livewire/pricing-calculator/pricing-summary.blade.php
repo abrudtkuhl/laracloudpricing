@@ -108,14 +108,16 @@
             </div>
             @endif
             
-            <!-- Custom Domains Cost -->
-            @if($this->customDomainsCost() > 0)
+            <!-- Custom Domains - only shown for plans that include them -->
+            @if($plan != 'sandbox')
             <div class="flex justify-between items-start p-4 rounded-lg bg-white dark:bg-neutral-900">
                 <div>
                     <h3 class="text-lg font-semibold text-black dark:text-white">Custom Domains</h3>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $customDomains }} domains ({{ $this->pricingService->getPlanAllowance('custom_domains', $plan) }} included)</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        {{ $this->pricingService->getPlanAllowance('custom_domains', $plan) }} domains included with {{ ucfirst($plan) }} plan
+                    </p>
                 </div>
-                <span class="text-lg font-semibold text-black dark:text-white">${{ number_format($this->customDomainsCost(), 2) }}</span>
+                <span class="text-lg font-semibold text-black dark:text-white">Included</span>
             </div>
             @endif
             
