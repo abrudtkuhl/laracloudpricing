@@ -375,6 +375,26 @@ class PricingCalculator extends Component
         }
     }
 
+    public function incrementWebInstances()
+    {
+        $this->webInstances = min(10, $this->webInstances + 1);
+    }
+
+    public function decrementWebInstances()
+    {
+        $this->webInstances = max(1, $this->webInstances - 1);
+    }
+
+    public function incrementWorkerInstances()
+    {
+        $this->workerInstances = min(10, $this->workerInstances + 1);
+    }
+
+    public function decrementWorkerInstances()
+    {
+        $this->workerInstances = max(1, $this->workerInstances - 1);
+    }
+
     // --- Added Computed Property ---
     /**
      * @return array<string, array<string, mixed>>
